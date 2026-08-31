@@ -16,7 +16,9 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
+}
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -46,16 +48,19 @@ const startServer = async () => {
       await runSeed();
     }
 
-    app.listen(PORT, () => {
-      console.log(`====================================================`);
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-      console.log(`📋 API Health: http://localhost:${PORT}/api/health`);
-      console.log(`====================================================`);
-    });
+    if (process.env.VERCEL !== '1') {
+      app.listen(PORT, () => {
+        console.log(`====================================================`);
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+        console.log(`📋 API Health: http://localhost:${PORT}/api/health`);
+        console.log(`====================================================`);
+      });
+    }
   } catch (error) {
     console.error('Failed to start server:', error);
-    process.exit(1);
   }
 };
 
 startServer();
+
+export default app;

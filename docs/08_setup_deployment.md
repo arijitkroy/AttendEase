@@ -28,27 +28,38 @@ npm run dev
 
 ---
 
-## 8.2 Production Deployment
+## 8.2 Full-Stack Deployment to Vercel (Frontend + Backend)
 
-### Frontend (Firebase Hosting / Vercel / Netlify)
-1. Build the production assets:
-   ```bash
-   cd frontend
-   npm run build
-   ```
-2. Deploy via Firebase CLI:
-   ```bash
-   firebase deploy --only hosting
-   ```
+You can host **both the React frontend and Node.js Express backend together on a single Vercel project**.
 
-### Backend (Render / Railway / Cloud Run)
-1. Set the following environment variables in your cloud hosting provider:
-   - `PORT`: `5000`
-   - `JWT_SECRET`: `<secure-random-secret>`
-   - `FIREBASE_PROJECT_ID`: `<project-id>`
-   - `FIREBASE_CLIENT_EMAIL`: `<client-email>`
-   - `FIREBASE_PRIVATE_KEY`: `<full-private-key-with-\n>`
-2. Start command:
-   ```bash
-   npm start
-   ```
+### Step 1: Import Repository on Vercel
+1. Go to [vercel.com](https://vercel.com) and click **Add New > Project**.
+2. Select your GitHub repository (`arijitkroy/AttendEase`).
+3. Leave Framework Preset as **Vite** (or Other).
+4. The repository includes [`vercel.json`](../vercel.json) and [`api/index.js`](../api/index.js) which automatically configures the build and routes `/api/*` to the serverless backend function.
+
+### Step 2: Set Environment Variables in Vercel
+In the Vercel Dashboard under **Project Settings > Environment Variables**, add:
+
+| Variable | Value | Description |
+| :--- | :--- | :--- |
+| `JWT_SECRET` | `041e8df85a9...` | Secret key for signing JWT tokens |
+| `FIREBASE_SERVICE_ACCOUNT_KEY` | `{"type":"service_account",...}` | Paste the entire content of your Firebase service account JSON as a single-line string |
+| *(Alternative)* `FIREBASE_PROJECT_ID` | `your-firebase-project-id` | Firebase Project ID |
+| *(Alternative)* `FIREBASE_CLIENT_EMAIL` | `firebase-adminsdk-...` | Service Account Client Email |
+| *(Alternative)* `FIREBASE_PRIVATE_KEY` | `"-----BEGIN PRIVATE KEY-----\n..."` | Service Account Private Key |
+
+### Step 3: Deploy
+Click **Deploy**. Vercel will build the frontend into `frontend/dist` and deploy the Express API as a serverless function at `/api/*`.
+
+---
+
+## 8.3 Alternative Deployments
+
+### Standalone Backend (Render / Railway / Google Cloud Run)
+1. Set start command to `npm start --prefix backend`.
+2. Provide environment variables (`PORT`, `JWT_SECRET`, and Firebase credentials).
+
+### Standalone Frontend (Firebase Hosting / Netlify)
+1. Build assets: `npm run build --prefix frontend`.
+2. Deploy using `firebase deploy --only hosting`.
