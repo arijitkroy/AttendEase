@@ -2,6 +2,8 @@
 
 A full-stack **Employee Attendance Management System** built with **Node.js (Express)**, **React.js**, and **Firebase / Firestore** database services.
 
+**Live Demo URL**: [https://attend-ease-portal.vercel.app/](https://attend-ease-portal.vercel.app/)
+
 ---
 
 ## Documentation Chapters
