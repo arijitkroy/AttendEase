@@ -11,7 +11,7 @@ export const StatCard = ({ title, value, subtitle, icon: Icon, color = 'blue', t
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-hover-lift">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-slate-500 tracking-wider uppercase">{title}</span>
         {Icon && (
