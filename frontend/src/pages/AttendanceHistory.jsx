@@ -156,8 +156,8 @@ export const AttendanceHistory = () => {
 
       {/* Detailed Records Table */}
       <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+        <div className="table-scroll-container">
+          <table className="w-full text-left text-xs min-w-[700px]">
             <thead>
               <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
                 <th className="pb-3 px-3">Date</th>
