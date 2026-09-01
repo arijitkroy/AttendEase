@@ -132,3 +132,25 @@ Stores leave applications and review decisions.
 | `appliedAt` | `string` | ISO 8601 creation timestamp |
 | `approvedBy` | `string` | Reviewer name |
 | `reviewComments`| `string`| HR approval/rejection feedback |
+
+---
+
+## 6.3 Composite Indexes & Query Optimization
+
+To maintain sub-50ms query response times under high concurrency, Firestore uses composite indexes defined in [`firestore.indexes.json`](../firestore.indexes.json):
+
+1. **User Attendance History Index**:
+   - Collection: `attendance`
+   - Fields: `userId` (ASC), `date` (DESC)
+   - Usage: Fast retrieval of monthly calendars and punch histories.
+
+2. **HR Departmental Logs Filter Index**:
+   - Collection: `attendance`
+   - Fields: `department` (ASC), `date` (DESC), `status` (ASC)
+   - Usage: Department-wise live ops filtering and CSV export.
+
+3. **Pending Leave Queue Index**:
+   - Collection: `leaves`
+   - Fields: `status` (ASC), `appliedAt` (DESC)
+   - Usage: HR administrative queue prioritization.
+
