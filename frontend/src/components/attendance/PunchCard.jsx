@@ -308,22 +308,33 @@ export const PunchCard = ({ onAttendanceChange }) => {
             )}
 
             {isCheckedOut && (
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">
-                <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto" />
-                <h4 className="text-sm font-bold text-slate-800">Shift Completed for Today</h4>
+              <div className="p-5 rounded-2xl bg-gradient-to-b from-slate-50 to-slate-100/70 border border-slate-200/90 text-center space-y-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto shadow-sm">
+                  <CheckCircle className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-slate-800 tracking-tight">Shift Completed for Today</h4>
                 <p className="text-xs text-slate-600">
-                  Total Time: <span className="font-semibold text-slate-900">{attendance?.formattedDuration}</span> ({attendance?.workingHours} hrs)
+                  Total Time: <span className="font-bold text-slate-900 mono">{attendance?.formattedDuration}</span> ({attendance?.workingHours} hrs)
                 </p>
-                {attendance?.overtimeHours > 0 && (
-                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">
-                    +{attendance.overtimeHours}h Overtime Earned
-                  </span>
-                )}
-                {attendance?.shortfallHours > 0 && (
-                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">
-                    {attendance.shortfallHours}h Under Standard Shift
-                  </span>
-                )}
+                <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+                  {attendance?.overtimeHours > 0 && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                      +{attendance.overtimeHours}h Overtime Earned
+                    </span>
+                  )}
+                  {attendance?.shortfallHours > 0 && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-200 shadow-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                      {attendance.shortfallHours}h Under Standard Shift
+                    </span>
+                  )}
+                  {attendance?.breakMinutes > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-200/70 text-slate-700">
+                      {attendance.breakMinutes}m break
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </div>
