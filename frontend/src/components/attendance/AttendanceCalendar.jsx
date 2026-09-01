@@ -97,9 +97,11 @@ export const AttendanceCalendar = ({ records = [] }) => {
 
           const { day, isWeekend, record, dateStr } = item;
           const isSelected = selectedDayRecord?.dateStr === dateStr;
+          const todayISO = new Date().toISOString().split('T')[0];
+          const isToday = dateStr === todayISO;
 
           let bgClass = 'bg-white hover:border-blue-400';
-          let borderClass = 'border-slate-200/80';
+          let borderClass = isToday ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-sm' : 'border-slate-200/80';
 
           if (isWeekend) {
             bgClass = 'bg-slate-50/70 text-slate-400';
@@ -111,7 +113,7 @@ export const AttendanceCalendar = ({ records = [] }) => {
           }
 
           if (isSelected) {
-            borderClass = 'border-blue-600 ring-2 ring-blue-500/20';
+            borderClass = 'border-blue-600 ring-2 ring-blue-500/40 shadow-md';
           }
 
           return (
@@ -122,9 +124,14 @@ export const AttendanceCalendar = ({ records = [] }) => {
               className={`h-20 p-2 rounded-2xl border text-left flex flex-col justify-between transition-all ${bgClass} ${borderClass}`}
             >
               <div className="flex items-center justify-between">
-                <span className={`text-xs font-bold ${isWeekend ? 'text-slate-400' : 'text-slate-800'}`}>
-                  {day}
-                </span>
+                <div className="flex items-center gap-1">
+                  <span className={`text-xs font-bold ${isWeekend ? 'text-slate-400' : isToday ? 'text-blue-600' : 'text-slate-800'}`}>
+                    {day}
+                  </span>
+                  {isToday && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping" title="Today" />
+                  )}
+                </div>
                 {record?.workingHours > 0 && (
                   <span className="text-[10px] mono font-medium text-slate-500">
                     {record.workingHours}h
