@@ -20,6 +20,18 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
+// Request timing & correlation header middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  const reqId = `req_${Math.random().toString(36).substr(2, 9)}`;
+  res.setHeader('X-Request-Id', reqId);
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    res.setHeader('X-Response-Time', `${duration}ms`);
+  });
+  next();
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
