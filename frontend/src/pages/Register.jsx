@@ -114,7 +114,20 @@ export const Register = ({ onNavigateLogin }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Account Password</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-slate-300">Account Password</label>
+                {formData.password && (
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                    formData.password.length < 6 
+                      ? 'text-rose-400' 
+                      : formData.password.length < 9 
+                      ? 'text-amber-400' 
+                      : 'text-emerald-400'
+                  }`}>
+                    {formData.password.length < 6 ? 'Weak' : formData.password.length < 9 ? 'Moderate' : 'Strong'}
+                  </span>
+                )}
+              </div>
               <input
                 type="password"
                 name="password"
@@ -124,6 +137,13 @@ export const Register = ({ onNavigateLogin }) => {
                 required
                 className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
               />
+              {formData.password && (
+                <div className="mt-1.5 grid grid-cols-3 gap-1">
+                  <div className={`h-1 rounded-full ${formData.password.length > 0 ? 'bg-rose-500' : 'bg-slate-800'}`} />
+                  <div className={`h-1 rounded-full ${formData.password.length >= 6 ? 'bg-amber-500' : 'bg-slate-800'}`} />
+                  <div className={`h-1 rounded-full ${formData.password.length >= 9 ? 'bg-emerald-500' : 'bg-slate-800'}`} />
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
