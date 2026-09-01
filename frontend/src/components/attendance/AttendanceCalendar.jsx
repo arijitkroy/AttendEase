@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { StatusBadge } from '../common/StatusBadge';
 
@@ -24,35 +24,38 @@ export const AttendanceCalendar = ({ records = [] }) => {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const firstDayIndex = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const days = useMemo(() => {
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const recordMap = {};
-  records.forEach(r => {
-    if (r.date) {
-      recordMap[r.date] = r;
-    }
-  });
-
-  const days = [];
-  for (let i = 0; i < firstDayIndex; i++) {
-    days.push({ day: null, isCurrentMonth: false });
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const dateObj = new Date(year, month, d);
-    const dayOfWeek = dateObj.getDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const record = recordMap[formattedDate];
-
-    days.push({
-      day: d,
-      dateStr: formattedDate,
-      isCurrentMonth: true,
-      isWeekend,
-      record
+    const recordMap = {};
+    records.forEach(r => {
+      if (r.date) {
+        recordMap[r.date] = r;
+      }
     });
-  }
+
+    const dayList = [];
+    for (let i = 0; i < firstDayIndex; i++) {
+      dayList.push({ day: null, isCurrentMonth: false });
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const dateObj = new Date(year, month, d);
+      const dayOfWeek = dateObj.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const record = recordMap[formattedDate];
+
+      dayList.push({
+        day: d,
+        dateStr: formattedDate,
+        isCurrentMonth: true,
+        isWeekend,
+        record
+      });
+    }
+    return dayList;
+  }, [records, month, year]);
 
   return (
     <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm">
