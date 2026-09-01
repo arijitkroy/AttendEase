@@ -48,11 +48,14 @@ export const HRAttendanceLogs = () => {
   };
 
   useEffect(() => {
-    fetchLogs();
-  }, [department, status, startDate, endDate]);
+    const handler = setTimeout(() => {
+      fetchLogs();
+    }, 350);
+    return () => clearTimeout(handler);
+  }, [search, department, status, startDate, endDate]);
 
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     fetchLogs();
   };
 
