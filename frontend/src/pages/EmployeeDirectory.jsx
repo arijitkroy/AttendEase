@@ -13,7 +13,9 @@ import {
   Clock,
   Trash2,
   ShieldCheck,
-  Palmtree
+  Palmtree,
+  Copy,
+  Check
 } from 'lucide-react';
 
 export const EmployeeDirectory = () => {
@@ -21,6 +23,13 @@ export const EmployeeDirectory = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [department, setDepartment] = useState('ALL');
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopyId = (id) => {
+    navigator.clipboard?.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1800);
+  };
 
   // Add/Edit Modal
   const [modalOpen, setModalOpen] = useState(false);
@@ -175,9 +184,23 @@ export const EmployeeDirectory = () => {
                     <Mail className="w-3.5 h-3.5 text-slate-400" />
                     <span className="truncate">{emp.email}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{emp.department} • <span className="mono font-semibold">{emp.employeeId}</span></span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{emp.department} • <span className="mono font-semibold text-slate-800">{emp.employeeId}</span></span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyId(emp.employeeId)}
+                      className="text-slate-400 hover:text-blue-600 transition-colors p-1 rounded hover:bg-slate-100"
+                      title="Copy Employee ID"
+                    >
+                      {copiedId === emp.employeeId ? (
+                        <Check className="w-3 h-3 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                    </button>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
