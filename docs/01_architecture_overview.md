@@ -1,62 +1,49 @@
 # Chapter 1: Architecture & System Overview
 
-## 1.1 High-Level Architecture
-
-AttendEase is built as a decoupled, multi-tier Web Application composed of an Express.js REST API backend, a Vite + React.js Single Page Application (SPA), and a Google Cloud Firebase Firestore database layer.
+## 1.1 High-Level Architecture Diagram
 
 ```mermaid
 graph TB
-    subgraph ClientLayer["Client Layer (React 18 SPA)"]
-        direction TB
-        EmpPortal["Employee Self-Service<br/>• Real-Time Punch Clock<br/>• Monthly Visual Calendar<br/>• Personal Leave Portal"]
-        HRConsole["HR Administrative Console<br/>• Live Headcount Monitor<br/>• Leave Approval Desk<br/>• Employee Directory"]
+    subgraph Client Tier ["Client Tier (React 18 + Vite)"]
+        UI[Tailwind UI & Lucide Icons]
+        Context[Auth & Session Context]
+        AxiosClient[Axios API Client + Interceptors]
+        UI --> Context
+        Context --> AxiosClient
     end
 
-    subgraph APILayer["Backend REST API (Node.js & Express)"]
-        direction TB
-        AuthMiddleware["JWT Authentication & RBAC Guard<br/>(requireAuth, requireHR)"]
-        
-        subgraph Services["Core Calculation & Business Engines"]
-            AttService["Attendance Engine<br/>(Hours, Overtime, Shortfalls, Punctuality)"]
-            LeaveService["Leave Deduction Engine<br/>(Quota Math, 3-Late Penalties)"]
-            DBService["Data Access Service<br/>(Firestore DAO & Local Adapter)"]
-        end
-        
-        AuthMiddleware --> AttService
-        AuthMiddleware --> LeaveService
-        AuthMiddleware --> DBService
+    subgraph API Tier ["Backend Service Tier (Express REST API)"]
+        Router[Express Router]
+        AuthGuard[JWT & RBAC Middleware]
+        CalcEngine[Working Hours & Overtime Engine]
+        LeaveEngine[Leave Quota & Deduction Engine]
+        DAO[Database Abstraction Layer]
+
+        Router --> AuthGuard
+        AuthGuard --> CalcEngine
+        AuthGuard --> LeaveEngine
+        CalcEngine --> DAO
+        LeaveEngine --> DAO
     end
 
-    subgraph DataLayer["Google Cloud Firebase Firestore"]
-        direction TB
-        ColUsers[("Collection: /users")]
-        ColAttendance[("Collection: /attendance")]
-        ColLeaves[("Collection: /leaves")]
-        ColSettings[("Collection: /settings")]
-        ColAudit[("Collection: /audit_logs")]
+    subgraph Persistence Tier ["Data Layer (Google Cloud Firestore)"]
+        UsersCol[(users)]
+        AttCol[(attendance)]
+        LeavesCol[(leaves)]
+        AuditCol[(audit_logs)]
+
+        DAO --> UsersCol
+        DAO --> AttCol
+        DAO --> LeavesCol
+        DAO --> AuditCol
     end
 
-    EmpPortal -->|HTTP / HTTPS + Bearer JWT| AuthMiddleware
-    HRConsole -->|HTTP / HTTPS + Bearer JWT| AuthMiddleware
-    DBService -->|Firebase Admin SDK| ColUsers
-    DBService -->|Firebase Admin SDK| ColAttendance
-    DBService -->|Firebase Admin SDK| ColLeaves
-    DBService -->|Firebase Admin SDK| ColSettings
-    DBService -->|Firebase Admin SDK| ColAudit
+    AxiosClient -- "REST HTTPS / JWT" --> Router
 ```
 
 ---
 
-## 1.2 Core Design Principles
-
-1. **Deterministic Business Rules**: All timestamp math, working hours computations, overtime calculations, and leave deductions execute centrally on the server to prevent client-side clock tampering.
-2. **Role-Based Access Control (RBAC)**: Distinct permissions for `HR_ADMIN` (company-wide governance, employee creation, attendance adjustment, leave approvals) and `EMPLOYEE` (self-service punches, personal history, time-off requests).
-3. **Dual Persistence Mode**: The application runs natively on live Google Cloud Firestore when configured with a Firebase service account, and features a local JSON persistence fallback for instant out-of-the-box local evaluations.
-4. **Sub-second UI Feedback**: Client-side state updates instantly with visual alerts, live stopwatch counters, and toast notifications.
-
----
-
-## 1.3 Request Lifecycle
+## 1.2 End-to-End Punch Lifecycle
 
 ```mermaid
 sequenceDiagram
@@ -83,3 +70,20 @@ sequenceDiagram
     Controller-->>Client: 200 OK (Attendance JSON)
     Client-->>User: Starts live session stopwatch & shows badge
 ```
+
+---
+
+## 1.3 Role-Based Access Control (RBAC) Matrix
+
+| Feature / Resource | Route | `EMPLOYEE` | `HR_ADMIN` |
+| :--- | :--- | :---: | :---: |
+| **Self Attendance Punch In/Out** | `POST /api/attendance/check-in`, `check-out` | Full Access | Full Access |
+| **Personal Attendance History** | `GET /api/attendance/my-history` | Own Records | Own Records |
+| **Apply for Leave** | `POST /api/leaves/apply` | Own Quota | Own Quota |
+| **View Personal Leave Quota** | `GET /api/leaves/my-leaves` | Own Quota | Own Quota |
+| **Live Headcount Command Center** | `GET /api/attendance/hr-metrics` | Denied | Full Access |
+| **Master Attendance Logs & Filters**| `GET /api/attendance/all-logs` | Denied | Full Access |
+| **Manual Attendance Adjustments** | `PUT /api/attendance/adjust/:id` | Denied | Full Access |
+| **Approve / Reject Leave Requests**| `POST /api/leaves/:id/approve`, `reject` | Denied | Full Access |
+| **Employee Directory Management** | `POST/PUT/DELETE /api/employees` | Denied | Full Access |
+| **CSV Export for Payroll** | `GET /api/attendance/all-logs` | Denied | Full Access |
