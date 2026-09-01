@@ -14,6 +14,21 @@ export const applyLeave = async (req, res) => {
     const requestedDays = calculateLeaveDays(startDate, endDate, isHalfDay);
     const user = await dbService.findById('users', userId);
 
+    const existingLeaves = await dbService.find('leaves', l => 
+      l.userId === userId && 
+      (l.status === LEAVE_STATUS.PENDING || l.status === LEAVE_STATUS.APPROVED) &&
+      ((startDate >= l.startDate && startDate <= l.endDate) || 
+       (endDate >= l.startDate && endDate <= l.endDate) ||
+       (startDate <= l.startDate && endDate >= l.endDate))
+    );
+
+    if (existingLeaves.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `You already have an active or pending leave request overlapping with this date range (${existingLeaves[0].startDate} to ${existingLeaves[0].endDate}).`
+      });
+    }
+
     const balances = user.leaveBalances || {
       [LEAVE_TYPES.ANNUAL]: 15,
       [LEAVE_TYPES.CASUAL]: 10,
