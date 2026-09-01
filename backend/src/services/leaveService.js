@@ -1,8 +1,20 @@
 import { LEAVE_STATUS, LEAVE_TYPES, SHIFT_RULES } from '../config/constants.js';
 import { dbService } from './databaseService.js';
 
+export const isValidISODate = (dateString) => {
+  if (!dateString || typeof dateString !== 'string') return false;
+  const match = dateString.match(/^\d{4}-\d{2}-\d{2}$/);
+  if (!match) return false;
+  const d = new Date(dateString);
+  return !isNaN(d.getTime());
+};
+
 export const calculateLeaveDays = (startDateStr, endDateStr, isHalfDay = false) => {
   if (isHalfDay) return 0.5;
+
+  if (!isValidISODate(startDateStr) || !isValidISODate(endDateStr)) {
+    throw new Error('Invalid date format. Expected YYYY-MM-DD');
+  }
 
   const start = new Date(startDateStr);
   const end = new Date(endDateStr);
