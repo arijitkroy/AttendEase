@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { leaveApi } from '../../api/leave';
 import {
   LayoutDashboard,
   CalendarCheck2,
@@ -14,6 +15,19 @@ import {
 export const Sidebar = ({ activeTab, onTabChange }) => {
   const { user } = useAuth();
   const isHR = user?.role === 'HR_ADMIN';
+  const [pendingLeaveCount, setPendingLeaveCount] = useState(0);
+
+  useEffect(() => {
+    if (isHR) {
+      leaveApi.getAllRequests({ status: 'PENDING' })
+        .then(res => {
+          if (res.success && res.leaves) {
+            setPendingLeaveCount(res.leaves.length);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isHR, activeTab]);
 
   const employeeNav = [
     { id: 'dashboard', label: 'My Dashboard', icon: LayoutDashboard },
@@ -24,7 +38,7 @@ export const Sidebar = ({ activeTab, onTabChange }) => {
   const hrNav = [
     { id: 'hr_dashboard', label: 'HR Overview', icon: LayoutDashboard },
     { id: 'hr_attendance', label: 'Attendance Logs', icon: FileSpreadsheet },
-    { id: 'hr_leaves', label: 'Leave Management', icon: CheckCircle2 },
+    { id: 'hr_leaves', label: 'Leave Management', icon: CheckCircle2, badge: pendingLeaveCount },
     { id: 'hr_employees', label: 'Employee Directory', icon: Users },
     { id: 'dashboard', label: 'My Punch Card', icon: Clock },
   ];
@@ -44,18 +58,29 @@ export const Sidebar = ({ activeTab, onTabChange }) => {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
+            const hasBadge = Boolean(item.badge && item.badge > 0);
+
             return (
               <button
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/30'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                <span>{item.label}</span>
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                  <span>{item.label}</span>
+                </div>
+                {hasBadge && (
+                  <span className={`px-2 py-0.5 text-[11px] font-bold rounded-full ${
+                    isActive ? 'bg-white text-blue-700' : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           })}
