@@ -115,6 +115,39 @@ Authorization: Bearer <your_jwt_token>
 }
 ```
 
+### 5. Query Master Attendance Logs
+`GET /api/attendance/all-logs?startDate=2026-08-01&endDate=2026-08-31&page=1&limit=20&department=Engineering` *(Requires `HR_ADMIN` role)*
+
+#### Query Parameters:
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `startDate` | `string` | Filter records on or after `YYYY-MM-DD` |
+| `endDate` | `string` | Filter records on or before `YYYY-MM-DD` |
+| `department` | `string` | Filter by department (`Engineering`, `Design`, etc.) |
+| `status` | `string` | Filter by status (`PRESENT`, `LATE`, `HALF_DAY`, `ON_LEAVE`, `ABSENT`) |
+| `page` | `number` | Page index (default: `1`) |
+| `limit` | `number` | Number of records per page (optional) |
+| `search` | `string` | Search substring for employee name or ID |
+
+#### Response:
+```json
+{
+  "success": true,
+  "count": 48,
+  "page": 1,
+  "totalPages": 3,
+  "records": [
+    {
+      "id": "doc_123",
+      "date": "2026-08-31",
+      "employeeName": "John Doe",
+      "workingHours": 8.5,
+      "status": "PRESENT"
+    }
+  ]
+}
+```
+
 ---
 
 ## 7.4 Leave Endpoints
