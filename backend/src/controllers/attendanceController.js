@@ -80,10 +80,13 @@ export const checkOut = async (req, res) => {
     const user = await dbService.findById('users', userId);
     const shiftStartTime = user.shiftStartTime || '09:00';
 
+    const sanitizedBreak = Math.max(0, Math.min(360, Number(breakMinutes) || 0));
+    const sanitizedNotes = typeof notes === 'string' ? notes.trim().substring(0, 300) : '';
+
     const { durationHours, overtimeHours, shortfallHours, formattedDuration } = calculateWorkingHours(
       existingRecord.checkInTime,
       checkOutTime,
-      breakMinutes || existingRecord.breakMinutes || 0
+      sanitizedBreak || existingRecord.breakMinutes || 0
     );
 
     const finalStatus = determineAttendanceStatus(existingRecord.checkInTime, durationHours, shiftStartTime);
@@ -94,9 +97,9 @@ export const checkOut = async (req, res) => {
       overtimeHours,
       shortfallHours,
       formattedDuration,
-      breakMinutes: breakMinutes || existingRecord.breakMinutes || 0,
+      breakMinutes: sanitizedBreak || existingRecord.breakMinutes || 0,
       status: finalStatus,
-      notes: notes ? (existingRecord.notes ? `${existingRecord.notes} | ${notes}` : notes) : existingRecord.notes
+      notes: sanitizedNotes ? (existingRecord.notes ? `${existingRecord.notes} | ${sanitizedNotes}` : sanitizedNotes) : existingRecord.notes
     });
 
     const currentMonth = todayStr.substring(0, 7);
