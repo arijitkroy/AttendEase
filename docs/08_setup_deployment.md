@@ -52,3 +52,25 @@ npm run dev
    npm run build
    ```
 2. Serve the generated `frontend/dist` directory using any static web server (Firebase Hosting, NGINX, Apache, AWS S3 / CloudFront).
+
+---
+
+## 8.3 Troubleshooting & FAQ
+
+### 1. Port Collision (`EADDRINUSE: port 5000 or 3000`)
+If another service is using port 5000 or 3000:
+- **Windows (PowerShell)**:
+  ```powershell
+  Get-Process -Id (Get-NetTCPConnection -LocalPort 5000).OwningProcess | Stop-Process -Force
+  ```
+- **macOS / Linux**:
+  ```bash
+  lsof -ti:5000 | xargs kill -9
+  ```
+
+### 2. Firebase Credentials Not Found
+If the service account JSON key is missing or improperly placed:
+- The server will log a warning and automatically fall back to the built-in persistent storage adapter so all functionality continues working seamlessly offline.
+
+### 3. Session Expiration & Automatic Redirection
+If a JWT token expires after 7 days, the Axios response interceptor in `frontend/src/api/client.js` automatically clears local storage credentials and redirects the user to `/login`.
