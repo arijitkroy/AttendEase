@@ -17,6 +17,9 @@ export const generateToken = (user) => {
   );
 };
 
+const userCache = new Map();
+const CACHE_TTL_MS = 60 * 1000;
+
 export const requireAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -27,7 +30,19 @@ export const requireAuth = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    const user = await dbService.findById('users', decoded.id);
+    const now = Date.now();
+    let user = null;
+    const cached = userCache.get(decoded.id);
+
+    if (cached && (now - cached.timestamp < CACHE_TTL_MS)) {
+      user = cached.user;
+    } else {
+      user = await dbService.findById('users', decoded.id);
+      if (user) {
+        userCache.set(decoded.id, { user, timestamp: now });
+      }
+    }
+
     if (!user || user.isActive === false) {
       return res.status(401).json({ success: false, message: 'User session invalid or inactive.' });
     }
