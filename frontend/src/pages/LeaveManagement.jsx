@@ -187,8 +187,27 @@ export const LeaveManagement = () => {
                 </tr>
               ) : leaves.length === 0 ? (
                 <tr>
-                  <td colSpan={isHR ? 9 : 7} className="py-8 text-center text-slate-400">
-                    No leave requests found.
+                  <td colSpan={isHR ? 9 : 7} className="py-12 text-center">
+                    <div className="flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <CalendarDays className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-bold text-slate-800">No leave requests found</p>
+                        <p className="text-xs text-slate-500">
+                          {isHR ? 'There are currently no leave requests matching your filters.' : 'You have not submitted any leave applications for this period.'}
+                        </p>
+                      </div>
+                      {!isHR && (
+                        <button
+                          type="button"
+                          onClick={() => setApplyModalOpen(true)}
+                          className="mt-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
+                        >
+                          Submit Leave Request
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
