@@ -18,6 +18,18 @@ const AppContent = () => {
   // Default tab based on role
   const isHR = user?.role === 'HR_ADMIN';
   const [activeTab, setActiveTab] = useState(isHR ? 'hr_dashboard' : 'dashboard');
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Update default activeTab when user changes
   React.useEffect(() => {
@@ -65,6 +77,12 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      {!isOnline && (
+        <div className="bg-amber-500 text-slate-950 px-4 py-1.5 text-center text-xs font-semibold shadow-inner flex items-center justify-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping" />
+          <span>You are currently offline. Changes will sync once connection is restored.</span>
+        </div>
+      )}
       <Navbar />
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
