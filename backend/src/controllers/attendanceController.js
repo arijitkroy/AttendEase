@@ -278,10 +278,22 @@ export const getAllAttendanceLogs = async (req, res) => {
 
     records.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10);
+    const totalRecords = records.length;
+
+    let paginatedRecords = records;
+    if (limit && limit > 0) {
+      const startIndex = (page - 1) * limit;
+      paginatedRecords = records.slice(startIndex, startIndex + limit);
+    }
+
     return res.status(200).json({
       success: true,
-      count: records.length,
-      records
+      count: totalRecords,
+      page: limit ? page : 1,
+      totalPages: limit ? Math.ceil(totalRecords / limit) : 1,
+      records: paginatedRecords
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Error fetching attendance logs', error: error.message });
